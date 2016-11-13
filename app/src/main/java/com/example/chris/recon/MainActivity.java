@@ -25,21 +25,43 @@ public class MainActivity extends AppCompatActivity {
     //Web Client
     private FaceServiceClient  faceServicesClient = new FaceServiceRestClient("31d8d25e26fa4d4ba37fdbeb8e009f1a");
 
+    static final int REQUEST_IMAGE_CAPTURE = 1;
+
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Button button1 = (Button) findViewById(R.id.button1);
-        button1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent gallIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                gallIntent.setType("image/*");
-                startActivityForResult(Intent.createChooser(gallIntent, "Select Picture"), PICK_IMAGE);
-            }
-        });
 
-       detectionProgressDialog = new ProgressDialog(this);
+        // Add a listener to the Capture button
+        Button button2 = (Button) findViewById(R.id.button2);
+        button2.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // get an image from the camera
+                        dispatchTakePictureIntent();
+                    }
+                }
+        );
+        button1.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // find an image from the gallery
+                        Intent gallIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                        gallIntent.setType("image/*");
+                        startActivityForResult(Intent.createChooser(gallIntent, "Select Picture"), PICK_IMAGE);
+                    }
+                }
+        );
     }
 
     @Override
@@ -52,11 +74,19 @@ public class MainActivity extends AppCompatActivity {
                 ImageView imageView = (ImageView) findViewById(R.id.imageView1);
                 imageView.setImageBitmap(bitmap);
 
-               // detectAndFrame(bitmap); //Initiate image detection and image framing
+               detectAndFrame(bitmap); //Initiate image detection and image framing
 
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+
+        //Camera Use
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            Bundle extras = data.getExtras();
+            Bitmap imageBitmap = (Bitmap) extras.get("data");
+            ImageView imageView = (ImageView) findViewById(R.id.imageView1);
+            imageView.setImageBitmap(imageBitmap);
         }
     }
 
