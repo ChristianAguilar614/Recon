@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_IMAGE && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            Uri uri = data.getData();
+            Uri uri = data.getData();       //image does not get found..leads to FATAL CRASH
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
                 ImageView imageView = (ImageView) findViewById(R.id.imageView1);
@@ -82,11 +82,14 @@ public class MainActivity extends AppCompatActivity {
         }
 
         //Camera Use
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) { //permission is not properly set
             Bundle extras = data.getExtras();
             Bitmap imageBitmap = (Bitmap) extras.get("data");
             ImageView imageView = (ImageView) findViewById(R.id.imageView1);
             imageView.setImageBitmap(imageBitmap);
+
+            detectAndFrame(imageBitmap); //Initiate image detection and image framing
+
         }
     }
 
